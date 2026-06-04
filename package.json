@@ -12,7 +12,6 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
 
-    "postinstall": "prisma generate",
 
     "test:scraper": "ts-node --project tsconfig.json src/testScraper.ts"
   },
