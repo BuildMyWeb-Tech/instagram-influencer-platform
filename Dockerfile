@@ -2,22 +2,15 @@ FROM mcr.microsoft.com/playwright:v1.60.0-jammy
 
 WORKDIR /app
 
-# Copy package files first for Docker caching
 COPY package*.json ./
 
-# Install dependencies
 RUN npm install
 
-# Copy the entire project
-COPY . .
-
-# Generate Prisma Client
+COPY prisma ./prisma
 RUN npx prisma generate
 
-# Install Playwright browsers
-RUN npx playwright install chromium
+COPY . .
 
-# Build TypeScript
 RUN npm run build
 
 EXPOSE 3000
