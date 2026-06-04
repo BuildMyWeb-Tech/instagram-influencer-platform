@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Influenzer — Instagram Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #18181f;
+  --bg4: #1e1e28;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0f0f5;
+  --text2: #9090a8;
+  --text3: #5a5a70;
+  --accent: #6c5ce7;
+  --accent2: #a29bfe;
+  --green: #00b894;
+  --green-bg: rgba(0,184,148,0.1);
+  --red: #e17055;
+  --red-bg: rgba(225,112,85,0.1);
+  --amber: #fdcb6e;
+  --amber-bg: rgba(253,203,110,0.1);
+  --blue: #74b9ff;
+  --blue-bg: rgba(116,185,255,0.08);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* Layout */
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:24px 0;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.main{overflow-y:auto;min-height:100vh}
+
+/* Sidebar */
+.logo{padding:0 20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:600;flex-shrink:0}
+.logo-text{font-size:16px;font-weight:600;letter-spacing:-0.3px}
+.logo-badge{font-size:9px;background:var(--accent);color:#fff;padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:500;letter-spacing:.5px}
+.nav{padding:16px 12px;flex:1}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:.8px;color:var(--text3);padding:0 8px;margin-bottom:6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-size:13px;font-weight:400;transition:all .15s;margin-bottom:1px;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(108,92,231,0.15);color:var(--accent2);font-weight:500}
+.nav-item .nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.sidebar-stats{padding:16px 20px;border-top:1px solid var(--border);margin-top:auto}
+.sidebar-stat{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.sidebar-stat:last-child{margin-bottom:0}
+.sidebar-stat-label{font-size:11px;color:var(--text3)}
+.sidebar-stat-val{font-size:12px;font-weight:500;color:var(--text2);font-family:'DM Mono',monospace}
+
+/* Header */
+.page-header{padding:24px 28px 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:20px}
+.page-title{font-size:20px;font-weight:600;letter-spacing:-0.4px}
+.page-sub{font-size:12px;color:var(--text3);margin-top:2px}
+.header-actions{display:flex;gap:8px;align-items:center}
+
+/* Content */
+.content{padding:24px 28px}
+
+/* Search / Input area */
+.search-area{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.search-row{display:flex;gap:10px;align-items:flex-start}
+.input-wrap{flex:1;position:relative}
+.input-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text3)}
+.search-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px 10px 38px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--text3)}
+.btn{padding:10px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;border:none;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#5a4fd6;transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary:disabled{background:var(--bg4);color:var(--text3);cursor:not-allowed;transform:none}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--bg3);color:var(--text)}
+.search-hint{font-size:11px;color:var(--text3);margin-top:8px}
+.search-hint span{color:var(--text2)}
+
+/* Progress / Live log */
+.progress-area{display:none;margin-top:14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.progress-header{padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:var(--bg2)}
+.progress-title{font-size:12px;font-weight:500;display:flex;align-items:center;gap:7px}
+.spinner{width:10px;height:10px;border:1.5px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress-time{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.log-lines{padding:10px 14px;max-height:160px;overflow-y:auto;font-family:'DM Mono',monospace;font-size:11px;line-height:1.8}
+.log-line{display:flex;gap:8px;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.log-time{color:var(--text3);flex-shrink:0}
+.log-msg{color:var(--text2)}
+.log-msg.ok{color:var(--green)}
+.log-msg.err{color:var(--red)}
+.log-msg.info{color:var(--blue)}
+
+/* Stats row */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:border-color .2s}
+.stat-card:hover{border-color:var(--border2)}
+.stat-icon{font-size:18px;margin-bottom:8px}
+.stat-val{font-size:22px;font-weight:600;letter-spacing:-0.5px;font-family:'DM Mono',monospace;color:var(--text)}
+.stat-label{font-size:11px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+.stat-change{font-size:11px;margin-top:4px}
+.stat-change.up{color:var(--green)}
+.stat-change.down{color:var(--red)}
+
+/* Result card */
+.result-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;margin-bottom:20px;overflow:hidden;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.result-header{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.profile-info{display:flex;align-items:center;gap:12px}
+.avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;color:#fff;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.profile-name{font-size:16px;font-weight:600;letter-spacing:-0.3px}
+.profile-handle{font-size:12px;color:var(--text3);margin-top:1px;display:flex;align-items:center;gap:5px}
+.verified{color:var(--blue)}
+.result-badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.badge-success{background:var(--green-bg);color:var(--green)}
+.badge-error{background:var(--red-bg);color:var(--red)}
+.badge-warn{background:var(--amber-bg);color:var(--amber)}
+.badge-info{background:var(--blue-bg);color:var(--blue)}
+.badge-neutral{background:var(--bg4);color:var(--text2)}
+
+/* Profile stats */
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)}
+.pstat{padding:14px 20px;text-align:center;border-right:1px solid var(--border)}
+.pstat:last-child{border-right:none}
+.pstat-val{font-size:18px;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:-0.5px}
+.pstat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* Extraction report */
+.extraction-report{padding:14px 20px;border-bottom:1px solid var(--border)}
+.report-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+.report-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.report-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:var(--radius-sm)}
+.report-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.report-dot.ok{background:var(--green)}
+.report-dot.fail{background:var(--red)}
+.report-dot.partial{background:var(--amber)}
+.report-field{font-size:12px;font-weight:500;flex:1}
+.report-value{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.report-reason{font-size:10px;color:var(--red);margin-top:1px}
+
+/* Posts grid */
+.posts-section{padding:16px 20px}
+.posts-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.posts-title{font-size:13px;font-weight:600}
+.posts-count{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace}
+.posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.post-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:all .2s;position:relative}
+.post-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.post-thumb{height:130px;background:var(--bg4);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.post-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.post-card:hover .post-thumb img{transform:scale(1.05)}
+.post-thumb-placeholder{font-size:28px;color:var(--text3)}
+.post-type-badge{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);border-radius:4px;padding:2px 6px;font-size:9px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:.4px}
+.post-type-badge.video{background:rgba(108,92,231,0.8)}
+.post-type-badge.carousel{background:rgba(0,184,148,0.7)}
+.post-meta{padding:8px 10px}
+.post-stats{display:flex;gap:10px;margin-bottom:4px}
+.post-stat{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:3px;font-family:'DM Mono',monospace}
+.post-stat-icon{font-size:10px}
+.post-date{font-size:10px;color:var(--text3)}
+.post-caption{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
+.posts-more{text-align:center;padding:12px;border-top:1px solid var(--border);margin-top:4px}
+.posts-more a{font-size:12px;color:var(--accent2);text-decoration:none;cursor:pointer}
+.posts-more a:hover{color:var(--text)}
+
+/* Error section */
+.errors-section{padding:14px 20px;border-top:1px solid var(--border)}
+.error-item{display:flex;gap:8px;padding:8px 10px;background:var(--red-bg);border-radius:var(--radius-sm);margin-bottom:6px;border:1px solid rgba(225,112,85,0.2)}
+.error-item:last-child{margin-bottom:0}
+.error-icon{color:var(--red);flex-shrink:0;font-size:13px}
+.error-msg{font-size:12px;color:var(--red);line-height:1.4}
+
+/* Influencers table */
+.table-section{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.table-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.table-title{font-size:14px;font-weight:600}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);background:var(--bg3)}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.td-account{display:flex;align-items:center;gap:10px}
+.td-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:600;flex-shrink:0;overflow:hidden}
+.td-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.td-name{font-weight:500}
+.td-handle{font-size:11px;color:var(--text3)}
+.td-num{font-family:'DM Mono',monospace;font-size:13px}
+.td-status{display:flex;align-items:center;gap:5px;font-size:12px}
+.status-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.status-dot.success{background:var(--green)}
+.status-dot.partial{background:var(--amber)}
+.status-dot.failed{background:var(--red)}
+.status-dot.never{background:var(--text3)}
+.action-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all .15s}
+.action-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Empty state */
+.empty-state{text-align:center;padding:48px 20px}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+.empty-title{font-size:16px;font-weight:500;color:var(--text2);margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--text3);line-height:1.6}
+
+/* View tabs */
+.view-tabs{display:flex;gap:4px;background:var(--bg3);padding:3px;border-radius:8px}
+.view-tab{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text3);transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif}
+.view-tab.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,0.3)}
+
+/* Sync history */
+.history-list{padding:4px 0}
+.history-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);transition:background .1s}
+.history-item:last-child{border-bottom:none}
+.history-item:hover{background:var(--bg3)}
+.history-icon{font-size:16px;flex-shrink:0}
+.history-info{flex:1}
+.history-username{font-size:13px;font-weight:500}
+.history-detail{font-size:11px;color:var(--text3);margin-top:1px}
+.history-meta{text-align:right;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+
+/* Toast */
+.toast-container{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-size:13px;display:flex;align-items:center;gap:8px;animation:toastIn .25s ease;min-width:220px;max-width:320px;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.toast.success{border-color:rgba(0,184,148,0.3)}
+.toast.error{border-color:rgba(225,112,85,0.3)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">I</div>
+    <div>
+      <div class="logo-text">Influenzer <span class="logo-badge">POC</span></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-label">Menu</div>
+    <button class="nav-item active" onclick="showView('scraper')">
+      <span class="nav-icon">🔍</span> Scraper
+    </button>
+    <button class="nav-item" onclick="showView('influencers')">
+      <span class="nav-icon">👥</span> Influencers
+    </button>
+    <button class="nav-item" onclick="showView('history')">
+      <span class="nav-icon">📋</span> Sync History
+    </button>
+  </nav>
+  <div class="sidebar-stats" id="sidebarStats">
+    <div class="sidebar-stat">
+      <span class="sidebar-stat-label">Tracked</span>
+      <span class="sidebar-stat-val" id="ssStat1">—</span>
+    </div>
+    <div class="sidebar-stat">
+      <span class="sidebar-stat-label">Posts stored</span>
+      <span class="sidebar-stat-val" id="ssStat2">—</span>
+    </div>
+    <div class="sidebar-stat">
+      <span class="sidebar-stat-label">Success rate</span>
+      <span class="sidebar-stat-val" id="ssStat3">—</span>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+<!-- SCRAPER VIEW -->
+<div id="view-scraper">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Scraper</div>
+      <div class="page-sub">Enter an Instagram username or profile URL to extract data</div>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- Search -->
+    <div class="search-area">
+      <div class="search-row">
+        <div class="input-wrap">
+          <span class="input-icon">@</span>
+          <input class="search-input" id="usernameInput" type="text"
+            placeholder="Username, @handle, or instagram.com/username"
+            onkeydown="if(event.key==='Enter') startScrape()">
+        </div>
+        <button class="btn btn-primary" id="scrapeBtn" onclick="startScrape()">
+          ▶ Scrape
+        </button>
+      </div>
+      <div class="search-hint">Try: <span>nike</span> &nbsp;·&nbsp; <span>natgeo</span> &nbsp;·&nbsp; <span>cristiano</span> &nbsp;·&nbsp; <span>instagram.com/leomessi</span></div>
+
+      <!-- Live progress -->
+      <div class="progress-area" id="progressArea">
+        <div class="progress-header">
+          <div class="progress-title">
+            <div class="spinner" id="progressSpinner"></div>
+            <span id="progressLabel">Initialising scraper...</span>
+          </div>
+          <span class="progress-time" id="progressTimer">0s</span>
+        </div>
+        <div class="log-lines" id="logLines"></div>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-val" id="globalInfluencers">—</div>
+        <div class="stat-label">Influencers tracked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📸</div>
+        <div class="stat-val" id="globalPosts">—</div>
+        <div class="stat-label">Posts stored</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔄</div>
+        <div class="stat-val" id="globalSyncs">—</div>
+        <div class="stat-label">Total syncs run</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-val" id="globalSuccess">—</div>
+        <div class="stat-label">Success rate</div>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div id="resultArea"></div>
+
+  </div>
+</div>
+
+<!-- INFLUENCERS VIEW -->
+<div id="view-influencers" style="display:none">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Influencers</div>
+      <div class="page-sub">All tracked Instagram accounts</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="loadInfluencers()">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Tracked accounts</div>
+      </div>
+      <div id="influencersTable">
+        <div class="empty-state">
+          <div class="empty-icon">👥</div>
+          <div class="empty-title">No influencers yet</div>
+          <div class="empty-sub">Use the Scraper to add your first account.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY VIEW -->
+<div id="view-history" style="display:none">
+  <div class="page-header">
+    <div>
+      <div class="page-title">Sync History</div>
+      <div class="page-sub">All scraping runs and their outcomes</div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-ghost" onclick="loadHistory()">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Recent syncs</div>
+      </div>
+      <div id="historyList">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">No history yet</div>
+          <div class="empty-sub">Run a scrape to see results here.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = '';
+
+// ─── Utilities ───────────────────────────────────────────────────────────────
+function fmtNum(n) {
+  if (n == null || n === undefined) return '—';
+  if (n >= 1e9) return (n/1e9).toFixed(1)+'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return new Intl.NumberFormat('en-US').format(n);
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+}
+function timeAgo(d) {
+  if (!d) return 'Never';
+  const diff = (Date.now() - new Date(d).getTime()) / 1000;
+  if (diff < 60) return Math.round(diff)+'s ago';
+  if (diff < 3600) return Math.round(diff/60)+'m ago';
+  if (diff < 86400) return Math.round(diff/3600)+'h ago';
+  return Math.round(diff/86400)+'d ago';
+}
+function initials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+}
+function mediaEmoji(type) {
+  if (type === 'VIDEO') return '🎬';
+  if (type === 'CAROUSEL_ALBUM') return '🎞️';
+  return '🖼️';
+}
+function toast(msg, type='success') {
+  const tc = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${type==='success'?'✓':type==='error'?'✕':'ℹ'}</span> ${msg}`;
+  tc.appendChild(t);
+  setTimeout(()=>t.remove(), 4000);
+}
+
+// ─── View switching ───────────────────────────────────────────────────────────
+function showView(name) {
+  ['scraper','influencers','history'].forEach(v => {
+    document.getElementById(`view-${v}`).style.display = v===name ? '' : 'none';
+    const btns = document.querySelectorAll('.nav-item');
+    btns.forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().includes(name.slice(0,4))));
+  });
+  if (name === 'influencers') loadInfluencers();
+  if (name === 'history') loadHistory();
+}
+
+// ─── Global stats ─────────────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const r = await fetch(`${API}/api/stats`);
+    const d = await r.json();
+    document.getElementById('globalInfluencers').textContent = fmtNum(d.totalInfluencers);
+    document.getElementById('globalPosts').textContent = fmtNum(d.totalPosts);
+    document.getElementById('globalSyncs').textContent = fmtNum(d.totalSyncs);
+    document.getElementById('globalSuccess').textContent = (d.successRate||0)+'%';
+    document.getElementById('ssStat1').textContent = fmtNum(d.totalInfluencers);
+    document.getElementById('ssStat2').textContent = fmtNum(d.totalPosts);
+    document.getElementById('ssStat3').textContent = (d.successRate||0)+'%';
+  } catch {}
+}
+
+// ─── Scraper ──────────────────────────────────────────────────────────────────
+let scrapeTimer = null;
+let scrapeStart = 0;
+
+function addLog(msg, cls='') {
+  const ll = document.getElementById('logLines');
+  const now = new Date().toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.innerHTML = `<span class="log-time">${now}</span><span class="log-msg ${cls}">${msg}</span>`;
+  ll.appendChild(line);
+  ll.scrollTop = ll.scrollHeight;
+}
+
+function setProgressLabel(txt) {
+  document.getElementById('progressLabel').textContent = txt;
+}
+
+async function startScrape() {
+  const raw = document.getElementById('usernameInput').value.trim();
+  if (!raw) { toast('Enter a username or URL','error'); return; }
+
+  const btn = document.getElementById('scrapeBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Scraping...';
+
+  document.getElementById('resultArea').innerHTML = '';
+  document.getElementById('logLines').innerHTML = '';
+
+  const pa = document.getElementById('progressArea');
+  pa.style.display = 'block';
+  document.getElementById('progressSpinner').style.display = 'block';
+
+  scrapeStart = Date.now();
+  scrapeTimer = setInterval(() => {
+    document.getElementById('progressTimer').textContent =
+      ((Date.now()-scrapeStart)/1000).toFixed(1)+'s';
+  }, 100);
+
+  addLog(`Input: "${raw}"`, 'info');
+  addLog('Launching headless Chromium browser...', '');
+  setProgressLabel('Loading Instagram profile...');
+
+  try {
+    addLog('Loading cookies from previous session...', '');
+    addLog(`Navigating to instagram.com/${raw.replace(/.*instagram\.com\//,'').replace(/^@/,'')}...`, '');
+
+    const res = await fetch(`${API}/api/sync`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ username: raw })
+    });
+
+    const data = await res.json();
+    clearInterval(scrapeTimer);
+
+    if (!res.ok && res.status !== 207) {
+      addLog(`Error: ${data.error || data.message || 'Unknown error'}`, 'err');
+      setProgressLabel('Scrape failed');
+      document.getElementById('progressSpinner').style.display = 'none';
+      renderResult(null, data, res.status);
+      toast('Scrape failed', 'error');
+    } else {
+      if (data.profile) addLog(`✓ Profile captured: @${data.username}`, 'ok');
+      addLog(`✓ Posts collected: ${data.postsCollected}`, 'ok');
+      if (data.newPosts > 0) addLog(`✓ ${data.newPosts} new posts saved to database`, 'ok');
+      if (data.errors && data.errors.length > 0) {
+        data.errors.forEach(e => addLog(`⚠ ${e}`, 'err'));
+      }
+      addLog(`Done in ${((data.durationMs||Date.now()-scrapeStart)/1000).toFixed(1)}s`, 'ok');
+      setProgressLabel('Scrape complete');
+      document.getElementById('progressSpinner').style.display = 'none';
+      renderResult(data, null, res.status);
+      loadStats();
+      toast(`Scraped @${data.username} — ${data.postsCollected} posts`, 'success');
+    }
+  } catch (err) {
+    clearInterval(scrapeTimer);
+    addLog(`Fatal: ${err.message}`, 'err');
+    setProgressLabel('Connection error');
+    document.getElementById('progressSpinner').style.display = 'none';
+    toast('Cannot connect to API server', 'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = '▶ Scrape';
+}
+
+function renderResult(data, errData, status) {
+  const area = document.getElementById('resultArea');
+
+  if (!data || data.status === 'failed') {
+    const msg = errData?.message || errData?.error || data?.errors?.[0] || 'Unknown error';
+    area.innerHTML = `
+      <div class="result-card">
+        <div class="result-header">
+          <div class="profile-info">
+            <div class="avatar">✕</div>
+            <div>
+              <div class="profile-name">Scrape Failed</div>
+              <div class="profile-handle">Could not extract data</div>
+            </div>
+          </div>
+          <span class="badge badge-error">✕ Failed</span>
+        </div>
+        <div class="errors-section">
+          <div class="error-item">
+            <span class="error-icon">⚠</span>
+            <span class="error-msg">${msg}</span>
+          </div>
+          <div style="margin-top:10px;font-size:12px;color:var(--text3)">
+            Possible reasons: Instagram blocked the request · Account is private · Invalid username · Rate limited
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const p = data.profile || {};
+  const posts = [];
+
+  // Fetch posts separately for display
+  fetchAndRenderPosts(data.username, area, data, status);
+}
+
+async function fetchAndRenderPosts(username, area, syncData, status) {
+  let postsData = { posts: [] };
+  try {
+    const r = await fetch(`${API}/api/profile/${username}/posts?limit=50`);
+    if (r.ok) postsData = await r.json();
+  } catch {}
+
+  const profR = await fetch(`${API}/api/profile/${username}`).catch(()=>null);
+  const profile = profR?.ok ? await profR.json() : {};
+
+  const p = profile;
+  const posts = postsData.posts || [];
+  const onlyPaginationIssue = (syncData.errors || []).every(e =>
+    e.toLowerCase().includes('pagination') || e.toLowerCase().includes('first page')
+  );
+  const effectiveStatus = (syncData.status === 'partial' && onlyPaginationIssue) ? 'success' : syncData.status;
+  const statusBadge = effectiveStatus === 'success'
+    ? `<span class="badge badge-success">✓ Success</span>`
+    : effectiveStatus === 'partial'
+    ? `<span class="badge badge-warn">⚠ Partial</span>`
+    : `<span class="badge badge-error">✕ Failed</span>`;
+
+  const verifiedHtml = p.isVerified ? `<span class="verified">✓</span>` : '';
+  const avatarHtml = p.profileImageUrl
+    ? `<img src="${p.profileImageUrl}" onerror="this.style.display='none';this.parentNode.textContent='${initials(p.displayName||p.username)}'">`
+    : initials(p.displayName || p.username || '?');
+
+  // Build extraction report
+  const fields = [
+    { name: 'Username', val: p.username ? '@'+p.username : null, field: 'username' },
+    { name: 'Display name', val: p.displayName, field: 'displayName' },
+    { name: 'Followers', val: p.followerCount != null ? fmtNum(p.followerCount) : null, field: 'followerCount' },
+    { name: 'Following', val: p.followingCount != null ? fmtNum(p.followingCount) : null, field: 'followingCount' },
+    { name: 'Total posts', val: p.totalPostCount != null ? fmtNum(p.totalPostCount) : null, field: 'totalPostCount' },
+    { name: 'Biography', val: p.biography ? p.biography.slice(0,30)+'...' : null, field: 'biography' },
+    { name: 'Profile image', val: p.profileImageUrl ? 'Available' : null, field: 'profileImageUrl' },
+    { name: 'Verified status', val: p.isVerified !== undefined ? (p.isVerified ? 'Verified' : 'Not verified') : null, field: 'isVerified' },
+    { name: 'Posts scraped', val: posts.length > 0 ? `${posts.length} posts` : null, field: 'posts' },
+    { name: 'Like counts', val: posts.some(p=>p.likesCount!=null) ? `${posts.filter(p=>p.likesCount!=null).length}/${posts.length}` : null, field: 'likes' },
+    { name: 'Comment counts', val: posts.some(p=>p.commentsCount!=null) ? `${posts.filter(p=>p.commentsCount!=null).length}/${posts.length}` : null, field: 'comments' },
+    { name: 'Captions', val: posts.some(p=>p.caption) ? `${posts.filter(p=>p.caption).length}/${posts.length}` : null, field: 'captions' },
+  ];
+
+  const reportHtml = fields.map(f => {
+    const ok = f.val != null;
+    const dot = ok ? 'ok' : 'fail';
+    const reason = !ok ? 'Not available / not returned by Instagram' : '';
+    return `<div class="report-item">
+      <div class="report-dot ${dot}"></div>
+      <div style="flex:1">
+        <div class="report-field">${f.name}</div>
+        ${!ok ? `<div class="report-reason">Not available</div>` : ''}
+      </div>
+      <div class="report-value">${f.val || '—'}</div>
+    </div>`;
+  }).join('');
+
+  // Posts grid
+  const postsHtml = posts.length === 0
+    ? `<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">No posts extracted. This may be a private account or pagination issue.</div>`
+    : posts.slice(0, 12).map(post => {
+        const thumbUrl = post.thumbnailUrl || post.mediaUrl || '';
+        const thumbHtml = thumbUrl
+          ? `<img src="${thumbUrl}" loading="lazy" onerror="this.style.display='none'">`
+          : `<div class="post-thumb-placeholder">${mediaEmoji(post.mediaType)}</div>`;
+        const typeBadge = post.mediaType === 'VIDEO' ? `<div class="post-type-badge video">video</div>`
+          : post.mediaType === 'CAROUSEL_ALBUM' ? `<div class="post-type-badge carousel">album</div>` : '';
+        return `<a class="post-card" href="${post.postUrl}" target="_blank" title="${post.caption||''}">
+          <div class="post-thumb">${thumbHtml}${typeBadge}</div>
+          <div class="post-meta">
+            <div class="post-stats">
+              <div class="post-stat"><span class="post-stat-icon">♥</span>${fmtNum(post.likesCount)}</div>
+              <div class="post-stat"><span class="post-stat-icon">💬</span>${fmtNum(post.commentsCount)}</div>
+            </div>
+            <div class="post-date">${fmtDate(post.publishedAt)}</div>
+            ${post.caption ? `<div class="post-caption">${post.caption.replace(/</g,'&lt;')}</div>` : ''}
+          </div>
+        </a>`;
+      }).join('');
+
+  // Separate real errors from pagination info messages
+  const realErrors = (syncData.errors || []).filter(e =>
+    !e.toLowerCase().includes('pagination') && !e.toLowerCase().includes('first page')
+  );
+  const paginationNotes = (syncData.errors || []).filter(e =>
+    e.toLowerCase().includes('pagination') || e.toLowerCase().includes('first page')
+  );
+
+  const errorsHtml = realErrors.length > 0
+    ? `<div class="errors-section">
+        <div class="report-title">⚠ Issues encountered</div>
+        ${realErrors.map(e => `<div class="error-item"><span class="error-icon">⚠</span><span class="error-msg">${e}</span></div>`).join('')}
+      </div>` : '';
+
+  const paginationHtml = paginationNotes.length > 0
+    ? `<div style="padding:10px 20px 14px;border-top:1px solid var(--border)">
+        <div style="display:flex;gap:8px;padding:8px 10px;background:var(--amber-bg);border-radius:var(--radius-sm);border:1px solid rgba(253,203,110,0.2)">
+          <span style="color:var(--amber);flex-shrink:0">ℹ</span>
+          <span style="font-size:12px;color:var(--amber);line-height:1.5">
+            <strong>Pagination note:</strong> ${paginationNotes[0]} 
+            Instagram limits unauthenticated scraping to ~12 posts per request. 
+            To get 100 posts: add <code style="font-size:11px;background:rgba(255,255,255,0.08);padding:1px 4px;border-radius:3px">IG_USERNAME</code> + 
+            <code style="font-size:11px;background:rgba(255,255,255,0.08);padding:1px 4px;border-radius:3px">IG_PASSWORD</code> in .env for authenticated scraping.
+          </span>
+        </div>
+      </div>` : '';
+
+  area.innerHTML = `
+    <div class="result-card">
+      <div class="result-header">
+        <div class="profile-info">
+          <div class="avatar">${avatarHtml}</div>
+          <div>
+            <div class="profile-name">${p.displayName || p.username || 'Unknown'}</div>
+            <div class="profile-handle">@${p.username || '—'} ${verifiedHtml}</div>
+          </div>
+        </div>
+        <div class="result-badges">
+          ${statusBadge}
+          <span class="badge badge-neutral">${((syncData.durationMs||0)/1000).toFixed(1)}s</span>
+          <span class="badge badge-info">${syncData.postsCollected} posts</span>
+          ${syncData.newPosts > 0 ? `<span class="badge badge-success">${syncData.newPosts} new</span>` : ''}
+        </div>
+      </div>
+
+      <div class="profile-stats">
+        <div class="pstat">
+          <div class="pstat-val">${fmtNum(p.followerCount)}</div>
+          <div class="pstat-label">Followers</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-val">${fmtNum(p.followingCount)}</div>
+          <div class="pstat-label">Following</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-val">${fmtNum(p.totalPostCount)}</div>
+          <div class="pstat-label">Total posts</div>
+        </div>
+      </div>
+
+      <div class="extraction-report">
+        <div class="report-title">📋 Data extraction report — what was captured</div>
+        <div class="report-grid">${reportHtml}</div>
+      </div>
+
+      <div class="posts-section">
+        <div class="posts-header">
+          <div class="posts-title">Scraped posts</div>
+          <div class="posts-count">${posts.length} / ${p.totalPostCount ? fmtNum(p.totalPostCount) : '?'} total</div>
+        </div>
+        <div class="posts-grid">${postsHtml}</div>
+        ${posts.length > 12 ? `<div class="posts-more"><a onclick="loadMorePosts('${p.username}')">View all ${posts.length} posts →</a></div>` : ''}
+      </div>
+
+      ${errorsHtml}
+      ${paginationHtml}
+    </div>`;
+}
+
+// ─── Influencers table ────────────────────────────────────────────────────────
+async function loadInfluencers() {
+  const container = document.getElementById('influencersTable');
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">Loading...</div>';
+  try {
+    const r = await fetch(`${API}/api/influencers`);
+    const data = await r.json();
+    if (!data.length) {
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">👥</div>
+        <div class="empty-title">No influencers yet</div>
+        <div class="empty-sub">Use the Scraper to add your first account.</div>
+      </div>`;
+      return;
+    }
+    container.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>Account</th><th>Followers</th><th>Posts (stored)</th>
+          <th>Last synced</th><th>Status</th><th></th>
+        </tr></thead>
+        <tbody>${data.map(inf => {
+          const avatarHtml = inf.profileImageUrl
+            ? `<img src="${inf.profileImageUrl}" onerror="this.style.display='none';this.parentNode.textContent='${initials(inf.displayName||inf.username)}'">`
+            : initials(inf.displayName||inf.username||'?');
+          return `<tr>
+            <td><div class="td-account">
+              <div class="td-avatar">${avatarHtml}</div>
+              <div><div class="td-name">${inf.displayName||inf.username}</div>
+              <div class="td-handle">@${inf.username}${inf.isVerified?' ✓':''}</div></div>
+            </div></td>
+            <td class="td-num">${fmtNum(inf.followerCount)}</td>
+            <td class="td-num">${inf._count?.posts||0} <span style="color:var(--text3)">/ ${fmtNum(inf.totalPostCount)}</span></td>
+            <td style="color:var(--text3);font-size:12px">${timeAgo(inf.lastSyncedAt)}</td>
+            <td><div class="td-status">
+              <div class="status-dot success"></div>
+              <span style="color:var(--green);font-size:12px">Synced</span>
+            </div></td>
+            <td><button class="action-btn" onclick="quickScrape('${inf.username}')">↻ Re-sync</button></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+  } catch (err) {
+    container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--red);font-size:13px">Failed to load: ${err.message}</div>`;
+  }
+}
+
+function quickScrape(username) {
+  showView('scraper');
+  document.getElementById('usernameInput').value = username;
+  startScrape();
+}
+
+// ─── History ──────────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const container = document.getElementById('historyList');
+  container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text3);font-size:13px">Loading...</div>';
+  try {
+    const r = await fetch(`${API}/api/influencers`);
+    const influencers = await r.json();
+
+    if (!influencers.length) {
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">No history yet</div>
+        <div class="empty-sub">Run a scrape to see results here.</div>
+      </div>`;
+      return;
+    }
+
+    // Get sync logs for all influencers
+    const allLogs = [];
+    for (const inf of influencers.slice(0,10)) {
+      const lr = await fetch(`${API}/api/profile/${inf.username}/history`);
+      if (lr.ok) {
+        const logs = await lr.json();
+        logs.forEach(l => allLogs.push({ ...l, displayName: inf.displayName, profilePic: inf.profileImageUrl }));
+      }
+    }
+
+    allLogs.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (!allLogs.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">No sync logs</div></div>`;
+      return;
+    }
+
+    container.innerHTML = `<div class="history-list">
+      ${allLogs.slice(0,50).map(log => {
+        const icon = log.status==='success' ? '✅' : log.status==='partial' ? '⚠️' : '❌';
+        const statusColor = log.status==='success' ? 'var(--green)' : log.status==='partial' ? 'var(--amber)' : 'var(--red)';
+        return `<div class="history-item">
+          <div class="history-icon">${icon}</div>
+          <div class="history-info">
+            <div class="history-username">@${log.username}</div>
+            <div class="history-detail" style="color:${statusColor}">${log.status} · ${log.postsCollected} posts · ${log.newPosts} new
+              ${log.errorMessage ? ` · <span style="color:var(--red)">${log.errorMessage.slice(0,60)}</span>` : ''}
+            </div>
+          </div>
+          <div class="history-meta">
+            <div>${timeAgo(log.createdAt)}</div>
+            <div style="color:var(--text3)">${((log.durationMs||0)/1000).toFixed(1)}s</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  } catch (err) {
+    container.innerHTML = `<div style="padding:20px;text-align:center;color:var(--red);font-size:13px">Error: ${err.message}</div>`;
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+loadStats();
+</script>
+</body>
+</html>

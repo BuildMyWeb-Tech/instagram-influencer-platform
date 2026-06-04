@@ -1,0 +1,10 @@
+node_modules
+.env
+.env.*
+cookies.json
+debug_*.json
+dist
+build
+*.log
+.DS_Store
+prisma/dev.db
